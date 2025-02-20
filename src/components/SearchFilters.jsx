@@ -5,175 +5,125 @@ const SearchFilters = ({ onSearch }) => {
     type: '',
     minPrice: '',
     maxPrice: '',
-    minArea: '',
-    maxArea: '',
-    bedrooms: '',
-    bathrooms: '',
+    minBedrooms: '',
+    minBathrooms: '',
   });
-
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFilters(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Remove empty filters and convert numeric values
-    const processedFilters = Object.entries(filters).reduce((acc, [key, value]) => {
-      if (value) {
-        acc[key] = ['minPrice', 'maxPrice', 'minArea', 'maxArea', 'bedrooms', 'bathrooms'].includes(key)
-          ? Number(value)
-          : value;
-      }
-      return acc;
-    }, {});
-    onSearch(processedFilters);
+    onSearch(filters);
   };
 
-  const clearFilters = () => {
+  const handleReset = () => {
     setFilters({
       type: '',
       minPrice: '',
       maxPrice: '',
-      minArea: '',
-      maxArea: '',
-      bedrooms: '',
-      bathrooms: '',
+      minBedrooms: '',
+      minBathrooms: '',
     });
     onSearch({});
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Basic Filters */}
-      <div className="flex flex-wrap gap-2">
-        <div className="flex-1 min-w-[200px]">
+    <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 space-y-4">
+      <div className="border-b border-gray-100 pb-4">
+        <h3 className="text-lg font-semibold text-gray-900">Filtros de búsqueda</h3>
+        <p className="mt-1 text-sm text-gray-500">Encuentra la propiedad perfecta</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
           <select
             name="type"
             value={filters.type}
             onChange={handleChange}
-            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors text-sm"
           >
-            <option value="">Tipo de Propiedad</option>
+            <option value="">Todos</option>
             <option value="casa">Casa</option>
             <option value="apartamento">Apartamento</option>
             <option value="oficina">Oficina</option>
             <option value="local">Local</option>
+            <option value="finca">Finca</option>
+            <option value="bodega">Bodega</option>
           </select>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
-        >
-          <span className="sr-only">Más filtros</span>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-          </svg>
-        </button>
-
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          <span className="sr-only">Buscar</span>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </button>
-      </div>
-
-      {/* Advanced Filters */}
-      <div className={`space-y-4 transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Precio</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                name="minPrice"
-                placeholder="Mínimo"
-                value={filters.minPrice}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              <input
-                type="number"
-                name="maxPrice"
-                placeholder="Máximo"
-                value={filters.maxPrice}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Área (m²)</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                name="minArea"
-                placeholder="Mínimo"
-                value={filters.minArea}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              <input
-                type="number"
-                name="maxArea"
-                placeholder="Máximo"
-                value={filters.maxArea}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Habitaciones</label>
-            <select
-              name="bedrooms"
-              value={filters.bedrooms}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Precio máx.</label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+            <input
+              type="number"
+              name="maxPrice"
+              value={filters.maxPrice}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">Cualquiera</option>
-              {[1, 2, 3, 4, 5].map(num => (
-                <option key={num} value={num}>{num}+ Habitaciones</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Baños</label>
-            <select
-              name="bathrooms"
-              value={filters.bathrooms}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">Cualquiera</option>
-              {[1, 2, 3, 4].map(num => (
-                <option key={num} value={num}>{num}+ Baños</option>
-              ))}
-            </select>
+              className="w-full pl-7 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors text-sm"
+              placeholder="Precio máximo"
+            />
           </div>
         </div>
+      </div>
 
-        <div className="flex justify-end">
+      {showAdvanced && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Habitaciones mín.</label>
+            <input
+              type="number"
+              name="minBedrooms"
+              value={filters.minBedrooms}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors text-sm"
+              placeholder="Mínimo"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Baños mín.</label>
+            <input
+              type="number"
+              name="minBathrooms"
+              value={filters.minBathrooms}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors text-sm"
+              placeholder="Mínimo"
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+        <button
+          type="button"
+          className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+        >
+          {showAdvanced ? 'Ocultar filtros avanzados' : 'Mostrar filtros avanzados'}
+        </button>
+        <div className="flex gap-2">
           <button
             type="button"
-            onClick={clearFilters}
-            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            onClick={handleReset}
+            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
           >
-            Limpiar Filtros
+            Limpiar
+          </button>
+          <button
+            type="submit"
+            className="px-5 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm flex items-center gap-2"
+          >
+            <span>Buscar</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </button>
         </div>
       </div>

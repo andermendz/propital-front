@@ -1,23 +1,19 @@
 import React, { useEffect } from 'react';
 
-const Modal = ({ isOpen, onClose, children }) => {
+const Modal = ({ onClose, children }) => {
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape') onClose();
     };
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
+    document.addEventListener('keydown', handleEscape);
+    document.body.style.overflow = 'hidden';
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
+  }, [onClose]);
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -26,25 +22,22 @@ const Modal = ({ isOpen, onClose, children }) => {
           className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
           onClick={onClose}
         />
-
         <span
-          className="hidden sm:inline-block sm:h-screen sm:align-middle"
+          className="hidden sm:inline-block sm:align-middle sm:h-screen"
           aria-hidden="true"
         >
           &#8203;
         </span>
-
-        <div className="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl sm:align-middle">
-          <div className="absolute right-0 top-0 pr-4 pt-4">
+        <div className="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+          <div className="absolute top-0 right-0 hidden pt-4 pr-4 sm:block">
             <button
               type="button"
-              className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
+              className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
               onClick={onClose}
             >
-              <span className="sr-only">Cerrar</span>
               <svg
-                className="h-6 w-6"
-                fill="none"
+                className="w-5 h-5"
+                fill="currentColor"
                 viewBox="0 0 24 24"
                 strokeWidth="1.5"
                 stroke="currentColor"

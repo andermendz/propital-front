@@ -14,27 +14,27 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-// Custom marker icons
-const customIcon = new L.Icon({
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+// Update the custom marker icons section at the top of the file
+const createCustomIcon = (color = 'blue') => new L.DivIcon({
+  className: '',
+  html: `
+    <div class="relative">
+      <div class="absolute -translate-x-1/2 -translate-y-full">
+        <div class="bg-white p-2 rounded-full shadow-lg">
+          <div class="bg-${color}-500 w-4 h-4 rounded-full"></div>
+        </div>
+        <div class="w-2 h-2 bg-${color}-500 rotate-45 absolute -bottom-1 left-1/2 -translate-x-1/2"></div>
+      </div>
+    </div>
+  `,
+  iconSize: [40, 40],
+  iconAnchor: [20, 0],
 });
 
-const newPropertyIcon = new L.Icon({
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-  className: 'new-property-marker'
-});
+// Replace the existing icon definitions
+const customIcon = createCustomIcon('blue');
+const newPropertyIcon = createCustomIcon('green');
+const selectedPropertyIcon = createCustomIcon('indigo');
 
 // Map click handler component
 function MapClickHandler({ onLocationSelect }) {
@@ -56,26 +56,25 @@ function RecenterAutomatically({ lat, lng }) {
   return null;
 }
 
-const Map = ({ properties, isAddingProperty = false, onPropertyCreate }) => {
-  const navigate = useNavigate();
-  const defaultCenter = [4.6097, -74.0817]; // Bogotá coordinates as default
-  const [selectedProperty, setSelectedProperty] = useState(null);
-  const [mapError, setMapError] = useState(false);
+const Map = ({
+  properties,
+  isAddingProperty = false,
+  onPropertyCreate,
+  selectedProperty,
+  mapError,
+  setSelectedProperty,
+}) => {
+  const [map, setMap] = useState(null);
   const [newPropertyLocation, setNewPropertyLocation] = useState(null);
   const [showPropertyForm, setShowPropertyForm] = useState(false);
 
-  // Error boundary for map loading
-  useEffect(() => {
-    const handleMapError = () => setMapError(true);
-    window.addEventListener('error', handleMapError);
-    return () => window.removeEventListener('error', handleMapError);
-  }, []);
+  const navigate = useNavigate();
+
+  const defaultCenter = [4.624335, -74.063644]; // Bogotá, Colombia
 
   const handleLocationSelect = (location) => {
-    if (isAddingProperty) {
-      setNewPropertyLocation(location);
-      setShowPropertyForm(true);
-    }
+    setNewPropertyLocation(location);
+    setShowPropertyForm(true);
   };
 
   const handleFormSubmit = (formData) => {
@@ -123,7 +122,7 @@ const Map = ({ properties, isAddingProperty = false, onPropertyCreate }) => {
   }
 
   return (
-    <div className="absolute inset-0">
+    <div className="relative w-full h-full">
       <MapContainer
         center={defaultCenter}
         zoom={13}
@@ -151,42 +150,71 @@ const Map = ({ properties, isAddingProperty = false, onPropertyCreate }) => {
           <Marker
             key={property.id}
             position={[property.latitude, property.longitude]}
-            icon={customIcon}
+            icon={property.id === selectedProperty?.id ? selectedPropertyIcon : customIcon}
             eventHandlers={{
               click: () => setSelectedProperty(property),
             }}
           >
             <Popup className="property-popup">
-              <div className="p-3 min-w-[250px] max-w-[300px]">
-                <div className="relative mb-3">
-                  <PropertyIcon 
-                    type={property.type} 
-                    className="w-full h-32 text-blue-600"
-                  />
-                  <div className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded-full text-sm">
-                    ${property.price?.toLocaleString()}
+              <div className="p-4 min-w-[300px] max-w-[400px]">
+                <div className="relative mb-4">
+                  <div className="w-full h-40 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
+                    <PropertyIcon 
+                      type={property.type} 
+                      className="w-20 h-20 text-blue-500/50"
+                    />
+                  </div>
+                  <div className="absolute top-2 left-2">
+                    <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg">
+                      <span className="text-blue-600 font-medium">
+                        {
+                          property.type === 'casa' ? 'Casa' :
+                          property.type === 'apartamento' ? 'Apartamento' :
+                          property.type === 'oficina' ? 'Oficina' :
+                          property.type === 'local' ? 'Local' :
+                          property.type === 'finca' ? 'Finca' :
+                          property.type === 'bodega' ? 'Bodega' :
+                          'Tipo desconocido'
+                        }
+                      </span>
+                    </div>
+                  </div>
+                  <div className="absolute top-2 right-2">
+                    <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                      ${property.price?.toLocaleString()}
+                    </div>
                   </div>
                 </div>
-                <h3 className="font-bold text-lg text-gray-800 mb-2">{property.name}</h3>
-                <p className="text-sm text-gray-600 mb-2">{property.address}</p>
-                <div className="flex gap-3 mb-3 text-sm text-gray-700">
-                  <span className="flex items-center">
-                    <i className="fas fa-bed mr-1"></i> {property.bedrooms}
-                  </span>
-                  <span className="flex items-center">
-                    <i className="fas fa-bath mr-1"></i> {property.bathrooms}
-                  </span>
-                  <span className="flex items-center">
-                    <i className="fas fa-ruler-combined mr-1"></i> {property.area}m²
-                  </span>
+                
+                <h3 className="font-bold text-xl text-gray-900 mb-2">{property.name}</h3>
+                <p className="text-gray-600 mb-4">{property.address}</p>
+                
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className="flex flex-col items-center p-2 bg-gray-50 rounded-lg">
+                    <span className="text-gray-500 text-sm">Área</span>
+                    <span className="font-semibold text-gray-900">{property.area}m²</span>
+                  </div>
+                  <div className="flex flex-col items-center p-2 bg-gray-50 rounded-lg">
+                    <span className="text-gray-500 text-sm">Habitaciones</span>
+                    <span className="font-semibold text-gray-900">{property.bedrooms}</span>
+                  </div>
+                  <div className="flex flex-col items-center p-2 bg-gray-50 rounded-lg">
+                    <span className="text-gray-500 text-sm">Baños</span>
+                    <span className="font-semibold text-gray-900">{property.bathrooms}</span>
+                  </div>
                 </div>
-                <button
-                  onClick={() => navigate(`/property/${property.id}`)}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-                >
-                  <span>Ver detalles</span>
-                  <i className="fas fa-arrow-right"></i>
-                </button>
+                
+                {property.description && (
+                  <div className="bg-gray-50 p-3 rounded-lg mb-4">
+                    <p className="text-gray-700 text-sm line-clamp-3">{property.description}</p>
+                  </div>
+                )}
+
+                {property.parkingSpaces > 0 && (
+                  <div className="text-sm text-gray-600">
+                    {property.parkingSpaces} parqueadero{property.parkingSpaces > 1 ? 's' : ''}
+                  </div>
+                )}
               </div>
             </Popup>
           </Marker>
@@ -199,11 +227,29 @@ const Map = ({ properties, isAddingProperty = false, onPropertyCreate }) => {
             icon={newPropertyIcon}
           >
             <Popup className="property-popup">
-              <div className="p-3">
-                <h3 className="font-bold text-lg mb-2">Nueva Propiedad</h3>
-                <p className="text-sm text-gray-600">
-                  Lat: {newPropertyLocation.latitude.toFixed(6)}<br />
-                  Lng: {newPropertyLocation.longitude.toFixed(6)}
+              <div className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <h3 className="font-bold text-lg text-gray-900">Nueva Propiedad</h3>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="flex flex-col">
+                      <span className="text-gray-500">Latitud</span>
+                      <span className="font-medium text-gray-900">
+                        {newPropertyLocation.latitude.toFixed(6)}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-gray-500">Longitud</span>
+                      <span className="font-medium text-gray-900">
+                        {newPropertyLocation.longitude.toFixed(6)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500 mt-3">
+                  Haz clic en otro lugar para actualizar la ubicación
                 </p>
               </div>
             </Popup>
@@ -220,6 +266,10 @@ const Map = ({ properties, isAddingProperty = false, onPropertyCreate }) => {
               initialData={{
                 latitude: newPropertyLocation.latitude,
                 longitude: newPropertyLocation.longitude,
+              }}
+              onClose={() => {
+                setShowPropertyForm(false);
+                setNewPropertyLocation(null);
               }}
             />
             <div className="p-4 border-t flex justify-end gap-2">

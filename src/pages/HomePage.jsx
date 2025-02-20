@@ -135,6 +135,11 @@ const HomePage = () => {
     setViewMode(viewMode === 'list' ? 'map' : 'list');
   };
 
+  const handleEditProperty = (property) => {
+    setSelectedProperty(property);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation Bar */}
@@ -204,10 +209,7 @@ const HomePage = () => {
                   <PropertyList
                     properties={properties}
                     onPropertySelect={setSelectedProperty}
-                    onEditProperty={(prop) => {
-                      setSelectedProperty(prop);
-                      setIsModalOpen(true);
-                    }}
+                    onEditProperty={handleEditProperty}
                     onDeleteProperty={handleDeleteProperty}
                   />
                 )}
@@ -223,19 +225,30 @@ const HomePage = () => {
                 isAddingProperty={isAddingProperty}
                 onPropertyCreate={handleCreateProperty}
                 selectedProperty={selectedProperty}
+                setSelectedProperty={setSelectedProperty}
+                mapError={error}
               />
             </div>
           )}
         </div>
       </div>
 
-      {/* Modals */}
-      {isModalOpen && (
-        <Modal onClose={() => setIsModalOpen(false)}>
+      {/* Modal for both adding and editing properties */}
+      {(isModalOpen || isAddingProperty) && (
+        <Modal onClose={() => {
+          setIsModalOpen(false);
+          setIsAddingProperty(false);
+          setSelectedProperty(null);
+        }}>
           <PropertyForm
             initialData={selectedProperty}
             onSubmit={selectedProperty ? handleUpdateProperty : handleCreateProperty}
             isEditing={!!selectedProperty}
+            onClose={() => {
+              setIsModalOpen(false);
+              setIsAddingProperty(false);
+              setSelectedProperty(null);
+            }}
           />
         </Modal>
       )}
