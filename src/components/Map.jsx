@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { useNavigate } from 'react-router-dom';
-import PropertyForm from './PropertyForm';
 import PropertyIcon from './PropertyIcon';
 
 // fix para los iconos de marcador por defecto
@@ -14,7 +12,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-// actualiza la sección de iconos de marcador personalizados en la parte superior del archivo
+// actualiza la sección de iconos de marcador personalizados
 const createCustomIcon = (color = 'blue') => new L.DivIcon({
   className: '',
   html: `
