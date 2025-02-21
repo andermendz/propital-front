@@ -10,10 +10,7 @@ const HomePage = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [isAddingProperty, setIsAddingProperty] = useState(false);
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
   const [showSidebar, setShowSidebar] = useState(true);
@@ -34,7 +31,7 @@ const HomePage = () => {
 
   useEffect(() => {
     loadProperties();
-  }, [currentPage]);
+  }, []);
 
   const loadProperties = async () => {
     try {
@@ -103,9 +100,10 @@ const HomePage = () => {
       setLoading(true);
       setError(null);
       await updateProperty(selectedProperty.id, propertyData);
-      setIsModalOpen(false);
+      setIsAddingProperty(false);
       setSelectedProperty(null);
-      loadProperties();
+      setNewPropertyLocation(null);
+      await loadProperties();
     } catch (err) {
       console.error('Error updating property:', err);
       setError('Error al actualizar la propiedad');
@@ -120,7 +118,7 @@ const HomePage = () => {
         setLoading(true);
         setError(null);
         await deleteProperty(id);
-        loadProperties();
+        await loadProperties();
       } catch (err) {
         console.error('Error deleting property:', err);
         setError('Error al eliminar la propiedad');

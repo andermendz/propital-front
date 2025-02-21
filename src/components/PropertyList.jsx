@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropertyIcon from './PropertyIcon';
 
 const PropertyCard = ({ property, onPropertySelect, onEditProperty, onDeleteProperty }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
   const formatPrice = (price) => {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -16,8 +14,8 @@ const PropertyCard = ({ property, onPropertySelect, onEditProperty, onDeleteProp
   return (
     <div
       className="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => {}}
+      onMouseLeave={() => {}}
       onClick={() => onPropertySelect?.(property)}
     >
       <div className="relative">

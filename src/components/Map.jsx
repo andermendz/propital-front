@@ -59,19 +59,14 @@ function RecenterAutomatically({ lat, lng }) {
 const Map = ({
   properties,
   isAddingProperty = false,
-  onPropertyCreate,
   selectedProperty,
   mapError,
   setSelectedProperty,
   onLocationSelect,
   newPropertyLocation,
 }) => {
-  const [map, setMap] = useState(null);
-
-  const navigate = useNavigate();
   const defaultCenter = [4.624335, -74.063644]; // bogotá, colombia
 
-  // actualiza handleLocationSelect
   const handleMapClick = (location) => {
     if (!isAddingProperty) return;
     onLocationSelect(location);
@@ -92,7 +87,6 @@ const Map = ({
         zoom={13}
         style={{ height: '100%', width: '100%' }}
         className="z-0"
-        whenCreated={setMap}
       >
         {/* muestra el mensaje de instrucción cuando está en modo de agregar propiedad */}
         {isAddingProperty && !newPropertyLocation && (

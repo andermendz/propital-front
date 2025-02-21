@@ -55,40 +55,39 @@ const PropertyForm = ({ onSubmit, initialData, isEditing, onClose }) => {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15.172M12 22h4.014m-4.014-4h4.014" />
               </svg>
-              editar propiedad
+              Editar Propiedad
             </span>
           ) : (
             <span className="flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
-              nueva propiedad
+              Nueva Propiedad
             </span>
           )}
         </h2>
         <p className="mt-1 text-sm text-gray-500">
-          complete los detalles de la propiedad a continuación.
+          Complete los detalles de la propiedad a continuación.
         </p>
       </div>
 
       <div className="px-6 py-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-4">
-          {/* columna izquierda */}
           <div className="md:col-span-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">nombre</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
             <input
               type="text"
               name="name"
               value={formData.name || ''}
               onChange={handleChange}
               className="w-full px-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors shadow-sm text-sm"
-              placeholder="ej: casa moderna en el norte"
+              placeholder="Ej: Casa moderna en el norte"
               required
             />
           </div>
 
           <div className="md:col-span-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">tipo</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
             <select
               name="type"
               value={formData.type || ''}
@@ -96,18 +95,18 @@ const PropertyForm = ({ onSubmit, initialData, isEditing, onClose }) => {
               className="w-full px-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors shadow-sm text-sm"
               required
             >
-              <option value="">seleccionar tipo</option>
-              <option value="casa">casa</option>
-              <option value="apartamento">apartamento</option>
-              <option value="oficina">oficina</option>
-              <option value="local">local</option>
-              <option value="finca">finca</option>
-              <option value="bodega">bodega</option>
+              <option value="">Seleccionar tipo</option>
+              <option value="casa">Casa</option>
+              <option value="apartamento">Apartamento</option>
+              <option value="oficina">Oficina</option>
+              <option value="local">Local</option>
+              <option value="finca">Finca</option>
+              <option value="bodega">Bodega</option>
             </select>
           </div>
 
           <div className="md:col-span-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">dirección</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Dirección</label>
             <input
               type="text"
               name="address"
@@ -120,7 +119,7 @@ const PropertyForm = ({ onSubmit, initialData, isEditing, onClose }) => {
           </div>
 
           <div className="md:col-span-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">precio</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Precio</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
               <input
@@ -136,7 +135,7 @@ const PropertyForm = ({ onSubmit, initialData, isEditing, onClose }) => {
           </div>
 
           <div className="md:col-span-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">área (m²)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Área (m²)</label>
             <input
               type="number"
               name="area"
@@ -149,7 +148,7 @@ const PropertyForm = ({ onSubmit, initialData, isEditing, onClose }) => {
           </div>
 
           <div className="md:col-span-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">habitaciones</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Habitaciones</label>
             <input
               type="number"
               name="bedrooms"
@@ -162,7 +161,7 @@ const PropertyForm = ({ onSubmit, initialData, isEditing, onClose }) => {
           </div>
 
           <div className="md:col-span-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">baños</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Baños</label>
             <input
               type="number"
               name="bathrooms"
@@ -175,7 +174,7 @@ const PropertyForm = ({ onSubmit, initialData, isEditing, onClose }) => {
           </div>
 
           <div className="md:col-span-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">parqueaderos</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Parqueaderos</label>
             <input
               type="number"
               name="parkingSpaces"
@@ -187,14 +186,14 @@ const PropertyForm = ({ onSubmit, initialData, isEditing, onClose }) => {
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-2">descripción</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
             <textarea
               name="description"
               value={formData.description || ''}
               onChange={handleChange}
               rows="3"
               className="w-full px-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors shadow-sm text-sm"
-              placeholder="describe la propiedad..."
+              placeholder="Describe la propiedad..."
             />
           </div>
         </div>
@@ -207,21 +206,21 @@ const PropertyForm = ({ onSubmit, initialData, isEditing, onClose }) => {
             onClick={onClose}
             className="px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors font-medium text-sm"
           >
-            cancelar
+            Cancelar
           </button>
           <button
             type="submit"
             className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center gap-2 font-medium text-sm">
             {isEditing ? (
               <>
-                <span>guardar cambios</span>
+                <span>Guardar Cambios</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                 </svg>
               </>
             ) : (
               <>
-                <span>crear propiedad</span>
+                <span>Crear Propiedad</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
