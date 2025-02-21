@@ -18,6 +18,8 @@ const HomePage = () => {
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
   const [showSidebar, setShowSidebar] = useState(true);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
+  const [showPropertyForm, setShowPropertyForm] = useState(false);
+  const [newPropertyLocation, setNewPropertyLocation] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -86,6 +88,7 @@ const HomePage = () => {
       const newProperty = await createProperty(propertyData);
       setProperties(prev => [newProperty, ...prev]);
       setIsAddingProperty(false);
+      setNewPropertyLocation(null);
       await loadProperties();
     } catch (err) {
       console.error('Error creating property:', err);
@@ -137,7 +140,12 @@ const HomePage = () => {
 
   const handleEditProperty = (property) => {
     setSelectedProperty(property);
-    setIsModalOpen(true);
+    setShowPropertyForm(true);
+  };
+
+  const handleLocationSelect = (location) => {
+    setNewPropertyLocation(location);
+    setShowPropertyForm(true);
   };
 
   return (
@@ -157,7 +165,7 @@ const HomePage = () => {
                   </svg>
                 </button>
               )}
-              <h1 className="text-2xl font-bold text-gray-900 ml-2">Propital</h1>
+              <h1 className="text-2xl font-bold text-gray-900 ml-2">Propital Front</h1>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -227,6 +235,8 @@ const HomePage = () => {
                 selectedProperty={selectedProperty}
                 setSelectedProperty={setSelectedProperty}
                 mapError={error}
+                onLocationSelect={handleLocationSelect}
+                newPropertyLocation={newPropertyLocation}
               />
             </div>
           )}
@@ -234,20 +244,22 @@ const HomePage = () => {
       </div>
 
       {/* Modal for both adding and editing properties */}
-      {(isModalOpen || isAddingProperty) && (
+      {((showPropertyForm && newPropertyLocation) || (showPropertyForm && selectedProperty)) && (
         <Modal onClose={() => {
-          setIsModalOpen(false);
+          setShowPropertyForm(false);
           setIsAddingProperty(false);
           setSelectedProperty(null);
+          setNewPropertyLocation(null);
         }}>
           <PropertyForm
-            initialData={selectedProperty}
+            initialData={selectedProperty || { latitude: newPropertyLocation?.latitude, longitude: newPropertyLocation?.longitude }}
             onSubmit={selectedProperty ? handleUpdateProperty : handleCreateProperty}
             isEditing={!!selectedProperty}
             onClose={() => {
-              setIsModalOpen(false);
+              setShowPropertyForm(false);
               setIsAddingProperty(false);
               setSelectedProperty(null);
+              setNewPropertyLocation(null);
             }}
           />
         </Modal>

@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import PropertyForm from './PropertyForm';
 import PropertyIcon from './PropertyIcon';
 
-// Fix for default marker icons
+// fix para los iconos de marcador por defecto
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -14,7 +14,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-// Update the custom marker icons section at the top of the file
+// actualiza la sección de iconos de marcador personalizados en la parte superior del archivo
 const createCustomIcon = (color = 'blue') => new L.DivIcon({
   className: '',
   html: `
@@ -31,12 +31,12 @@ const createCustomIcon = (color = 'blue') => new L.DivIcon({
   iconAnchor: [20, 0],
 });
 
-// Replace the existing icon definitions
+// reemplaza las definiciones de iconos existentes
 const customIcon = createCustomIcon('blue');
 const newPropertyIcon = createCustomIcon('green');
 const selectedPropertyIcon = createCustomIcon('indigo');
 
-// Map click handler component
+// componente para manejar el click en el mapa
 function MapClickHandler({ onLocationSelect }) {
   useMapEvents({
     click: (e) => {
@@ -47,7 +47,7 @@ function MapClickHandler({ onLocationSelect }) {
   return null;
 }
 
-// Map recenter component
+// componente para recentrar el mapa automáticamente
 function RecenterAutomatically({ lat, lng }) {
   const map = useMap();
   useEffect(() => {
@@ -63,60 +63,24 @@ const Map = ({
   selectedProperty,
   mapError,
   setSelectedProperty,
+  onLocationSelect,
+  newPropertyLocation,
 }) => {
   const [map, setMap] = useState(null);
-  const [newPropertyLocation, setNewPropertyLocation] = useState(null);
-  const [showPropertyForm, setShowPropertyForm] = useState(false);
 
   const navigate = useNavigate();
+  const defaultCenter = [4.624335, -74.063644]; // bogotá, colombia
 
-  const defaultCenter = [4.624335, -74.063644]; // Bogotá, Colombia
-
-  const handleLocationSelect = (location) => {
-    setNewPropertyLocation(location);
-    setShowPropertyForm(true);
-  };
-
-  const handleFormSubmit = (formData) => {
-    // Debug log
-    console.log('Form data before submission:', {
-      formData,
-      location: newPropertyLocation
-    });
-
-    if (onPropertyCreate) {
-      const propertyData = {
-        ...formData,
-        latitude: Number(newPropertyLocation.latitude),
-        longitude: Number(newPropertyLocation.longitude),
-        // Ensure all required fields are present and properly formatted
-        price: Number(formData.price) || 0,
-        area: Number(formData.area) || 0,
-        bedrooms: Number(formData.bedrooms) || 0,
-        bathrooms: Number(formData.bathrooms) || 0,
-        parkingSpaces: Number(formData.parkingSpaces) || 0,
-        type: formData.type || 'casa', // default type if not specified
-        name: formData.name || 'Nueva Propiedad', // default name if not specified
-        description: formData.description || '', // empty string if not specified
-        address: formData.address || 'Dirección no especificada', // default address if not specified
-        // Add default image fields
-        mainImageUrl: formData.mainImageUrl || `https://via.placeholder.com/800x600?text=${encodeURIComponent(formData.type || 'Property')}`,
-        imageUrls: formData.imageUrls || []
-      };
-
-      // Debug log
-      console.log('Property data being sent to API:', propertyData);
-
-      onPropertyCreate(propertyData);
-    }
-    setShowPropertyForm(false);
-    setNewPropertyLocation(null);
+  // actualiza handleLocationSelect
+  const handleMapClick = (location) => {
+    if (!isAddingProperty) return;
+    onLocationSelect(location);
   };
 
   if (mapError) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
-        <p className="text-red-500">Error loading map. Please refresh the page.</p>
+        <p className="text-red-500">error loading map. please refresh the page.</p>
       </div>
     );
   }
@@ -126,18 +90,29 @@ const Map = ({
       <MapContainer
         center={defaultCenter}
         zoom={13}
-        className="w-full h-full"
-        style={{ zIndex: 1 }}
+        style={{ height: '100%', width: '100%' }}
+        className="z-0"
+        whenCreated={setMap}
       >
+        {/* muestra el mensaje de instrucción cuando está en modo de agregar propiedad */}
+        {isAddingProperty && !newPropertyLocation && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white px-6 py-3 rounded-lg shadow-lg">
+            <p className="text-gray-700 flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              haz clic en el mapa para ubicar la nueva propiedad
+            </p>
+          </div>
+        )}
+
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        
-        {/* Map click handler for new property */}
-        {isAddingProperty && <MapClickHandler onLocationSelect={handleLocationSelect} />}
 
-        {/* Selected property centering */}
+        {/* centrado de la propiedad seleccionada */}
         {selectedProperty && (
           <RecenterAutomatically
             lat={selectedProperty.latitude}
@@ -145,7 +120,7 @@ const Map = ({
           />
         )}
 
-        {/* Existing properties markers */}
+        {/* marcadores de propiedades existentes */}
         {properties?.map((property) => (
           <Marker
             key={property.id}
@@ -156,71 +131,73 @@ const Map = ({
             }}
           >
             <Popup className="property-popup">
-              <div className="p-4 min-w-[300px] max-w-[400px]">
-                <div className="relative mb-4">
-                  <div className="w-full h-40 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
-                    <PropertyIcon 
-                      type={property.type} 
-                      className="w-20 h-20 text-blue-500/50"
+              <div className="p-3 min-w-[280px] max-w-[320px]">
+                <div className="relative rounded-lg overflow-hidden shadow-md">
+                  <div className="h-32 bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+                    <PropertyIcon
+                      type={property.type}
+                      className="w-16 h-16 text-blue-500/50"
                     />
                   </div>
                   <div className="absolute top-2 left-2">
-                    <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg">
-                      <span className="text-blue-600 font-medium">
+                    <div className="bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-lg">
+                      <span className="text-blue-600 font-medium text-sm">
                         {
-                          property.type === 'casa' ? 'Casa' :
-                          property.type === 'apartamento' ? 'Apartamento' :
-                          property.type === 'oficina' ? 'Oficina' :
-                          property.type === 'local' ? 'Local' :
-                          property.type === 'finca' ? 'Finca' :
-                          property.type === 'bodega' ? 'Bodega' :
-                          'Tipo desconocido'
+                          property.type === 'casa' ? 'casa' :
+                            property.type === 'apartamento' ? 'apartamento' :
+                              property.type === 'oficina' ? 'oficina' :
+                                property.type === 'local' ? 'local' :
+                                  property.type === 'finca' ? 'finca' :
+                                    property.type === 'bodega' ? 'bodega' :
+                                      'tipo desconocido'
                         }
                       </span>
                     </div>
                   </div>
                   <div className="absolute top-2 right-2">
-                    <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                    <div className="bg-blue-600 text-white px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg">
                       ${property.price?.toLocaleString()}
                     </div>
                   </div>
                 </div>
-                
-                <h3 className="font-bold text-xl text-gray-900 mb-2">{property.name}</h3>
-                <p className="text-gray-600 mb-4">{property.address}</p>
-                
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                  <div className="flex flex-col items-center p-2 bg-gray-50 rounded-lg">
-                    <span className="text-gray-500 text-sm">Área</span>
-                    <span className="font-semibold text-gray-900">{property.area}m²</span>
-                  </div>
-                  <div className="flex flex-col items-center p-2 bg-gray-50 rounded-lg">
-                    <span className="text-gray-500 text-sm">Habitaciones</span>
-                    <span className="font-semibold text-gray-900">{property.bedrooms}</span>
-                  </div>
-                  <div className="flex flex-col items-center p-2 bg-gray-50 rounded-lg">
-                    <span className="text-gray-500 text-sm">Baños</span>
-                    <span className="font-semibold text-gray-900">{property.bathrooms}</span>
-                  </div>
-                </div>
-                
-                {property.description && (
-                  <div className="bg-gray-50 p-3 rounded-lg mb-4">
-                    <p className="text-gray-700 text-sm line-clamp-3">{property.description}</p>
-                  </div>
-                )}
 
-                {property.parkingSpaces > 0 && (
-                  <div className="text-sm text-gray-600">
-                    {property.parkingSpaces} parqueadero{property.parkingSpaces > 1 ? 's' : ''}
+                <div className="mt-2">
+                  <h3 className="font-bold text-lg text-gray-900 mb-0.5 line-clamp-1">{property.name}</h3>
+                  <p className="text-gray-600 text-sm mb-1 line-clamp-1">{property.address}</p>
+
+                  <div className="grid grid-cols-3 gap-1 text-xs text-gray-700">
+                    <div className="flex flex-col items-center p-1 bg-gray-50 rounded-lg">
+                      <span className="text-gray-500">área</span>
+                      <span className="font-medium">{property.area}m²</span>
+                    </div>
+                    <div className="flex flex-col items-center p-1 bg-gray-50 rounded-lg">
+                      <span className="text-gray-500">hab</span>
+                      <span className="font-medium">{property.bedrooms}</span>
+                    </div>
+                    <div className="flex flex-col items-center p-1 bg-gray-50 rounded-lg">
+                      <span className="text-gray-500">baños</span>
+                      <span className="font-medium">{property.bathrooms}</span>
+                    </div>
                   </div>
-                )}
+
+                  {property.description && (
+                    <div className="mt-2 bg-gray-50 p-2 rounded-lg">
+                      <p className="text-gray-700 text-xs line-clamp-2">{property.description}</p>
+                    </div>
+                  )}
+
+                  {property.parkingSpaces > 0 && (
+                    <div className="mt-1 text-xs text-gray-600">
+                      {property.parkingSpaces} parqueadero{property.parkingSpaces > 1 ? 's' : ''}
+                    </div>
+                  )}
+                </div>
               </div>
             </Popup>
           </Marker>
         ))}
 
-        {/* New property marker */}
+        {/* nuevo marcador de propiedad */}
         {newPropertyLocation && (
           <Marker
             position={[newPropertyLocation.latitude, newPropertyLocation.longitude]}
@@ -230,18 +207,18 @@ const Map = ({
               <div className="p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <h3 className="font-bold text-lg text-gray-900">Nueva Propiedad</h3>
+                  <h3 className="font-bold text-lg text-gray-900">nueva propiedad</h3>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="flex flex-col">
-                      <span className="text-gray-500">Latitud</span>
+                      <span className="text-gray-500">latitud</span>
                       <span className="font-medium text-gray-900">
                         {newPropertyLocation.latitude.toFixed(6)}
                       </span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-gray-500">Longitud</span>
+                      <span className="text-gray-500">longitud</span>
                       <span className="font-medium text-gray-900">
                         {newPropertyLocation.longitude.toFixed(6)}
                       </span>
@@ -249,43 +226,16 @@ const Map = ({
                   </div>
                 </div>
                 <p className="text-sm text-gray-500 mt-3">
-                  Haz clic en otro lugar para actualizar la ubicación
+                  haz clic en otro lugar para actualizar la ubicación
                 </p>
               </div>
             </Popup>
           </Marker>
         )}
-      </MapContainer>
 
-      {/* Property Form Modal */}
-      {showPropertyForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <PropertyForm
-              onSubmit={handleFormSubmit}
-              initialData={{
-                latitude: newPropertyLocation.latitude,
-                longitude: newPropertyLocation.longitude,
-              }}
-              onClose={() => {
-                setShowPropertyForm(false);
-                setNewPropertyLocation(null);
-              }}
-            />
-            <div className="p-4 border-t flex justify-end gap-2">
-              <button
-                onClick={() => {
-                  setShowPropertyForm(false);
-                  setNewPropertyLocation(null);
-                }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        {/* controlador de clic en el mapa */}
+        <MapClickHandler onLocationSelect={handleMapClick} />
+      </MapContainer>
     </div>
   );
 };

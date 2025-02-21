@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-// The API doesn't have /api prefix in the URL
+// la api no tiene el prefijo /api en la url
 const API_BASE_URL = 'http://localhost:3000';
 
-// Create axios instance with default config
+// crea una instancia de axios con la configuración por defecto
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -11,7 +11,7 @@ const api = axios.create({
   },
 });
 
-// Log request and response for debugging
+// registra la request y la response para debugging
 api.interceptors.request.use(request => {
   console.log('Request:', {
     url: request.url,
@@ -35,7 +35,7 @@ api.interceptors.response.use(
 
 export const getProperties = async (page = 1, limit = 10) => {
   try {
-    // Remove the page and limit params for now as they might not be implemented in the backend
+    // remueve los parámetros page y limit por ahora, ya que podrían no estar implementados en el backend
     const response = await api.get('/properties');
     console.log('Properties response:', response.data);
     return response.data;
@@ -59,7 +59,7 @@ export const createProperty = async (propertyData) => {
   try {
     console.log('Creating property with data:', propertyData);
     
-    // Ensure numeric fields are properly formatted
+    // asegura que los campos numéricos estén formateados correctamente
     const processedData = {
       ...propertyData,
       price: Number(propertyData.price),
@@ -69,7 +69,7 @@ export const createProperty = async (propertyData) => {
       parkingSpaces: Number(propertyData.parkingSpaces),
       latitude: Number(propertyData.latitude),
       longitude: Number(propertyData.longitude),
-      // Ensure image fields have default values
+      // asegura que los campos de imagen tengan valores por defecto
       mainImageUrl: propertyData.mainImageUrl || `https://via.placeholder.com/800x600?text=${encodeURIComponent(propertyData.type || 'Property')}`,
       imageUrls: propertyData.imageUrls || []
     };
